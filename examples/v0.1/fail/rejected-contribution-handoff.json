@@ -1,0 +1,80 @@
+{
+  "schema_version": "0.1.0",
+  "record_id": "record-rejected-contribution-handoff-001",
+  "updated_at": "2026-11-02T10:10:00+09:00",
+  "participant": {
+    "participant_id": "participant-example-015",
+    "identity_mode": "pseudonymous"
+  },
+  "question": {
+    "question_id": "question-example-015",
+    "text": "地域の図書館で、探している本を見つけやすくするにはどうすればよいか？",
+    "registered_at": "2026-11-02T09:00:00+09:00",
+    "submission_mode": "human",
+    "origin_ref": null
+  },
+  "consent": {
+    "consent_id": "consent-example-015",
+    "policy_ref": "example-policy:toikatsu-consent-v0.1",
+    "status": "active",
+    "recorded_at": "2026-11-02T08:59:00+09:00",
+    "withdrawn_at": null,
+    "scopes": {
+      "activity_recording": true,
+      "contribution_evaluation": true,
+      "external_handoff": true,
+      "public_sharing": true
+    }
+  },
+  "activities": [
+    {
+      "activity_id": "activity-example-015",
+      "question_id": "question-example-015",
+      "activity_type": "exploration",
+      "occurred_at": "2026-11-02T09:20:00+09:00",
+      "description": "問いに関連する既存の館内案内資料を調べ、書棚番号と経路を表示する既存案を整理した調査メモを作成した。",
+      "output_refs": [
+        "example-output:library-navigation-research-memo-015",
+        "example-evidence:library-navigation-research-log-015"
+      ]
+    }
+  ],
+  "contributions": [
+    {
+      "contribution_id": "contribution-example-015",
+      "question_id": "question-example-015",
+      "beneficiary_id": "participant-example-015",
+      "proposed_by": "review-coordinator-example-015",
+      "proposed_at": "2026-11-02T09:35:00+09:00",
+      "activity_ids": [
+        "activity-example-015"
+      ],
+      "target_ref": "example-output:library-navigation-research-memo-015",
+      "claim": "この問いが、調査メモに含まれる書棚番号と経路を表示する案の新規考案に寄与した可能性がある。",
+      "evidence_refs": [
+        "example-evidence:library-navigation-research-log-015"
+      ],
+      "status": "rejected",
+      "verification": {
+        "verification_id": "verification-example-015",
+        "verifier_id": "independent-reviewer-example-015",
+        "verified_at": "2026-11-02T09:50:00+09:00",
+        "method_ref": "example-method:contribution-evidence-review-v0.1",
+        "evidence_refs": [
+          "example-evidence:library-navigation-research-log-015"
+        ],
+        "decision_reason": "調査記録では、対象の案は問いの登録以前から存在する資料から引用されていた。問いを起点に調査したことは確認できるが、申請された新規考案への貢献は根拠で裏付けられないため却下した。調査や整理への別の貢献の可能性、および問い自体の価値は否定しない。"
+      }
+    }
+  ],
+  "handoff": {
+    "status": "ready",
+    "contribution_ids": [
+      "contribution-example-015"
+    ],
+    "destination_ref": "example-destination:community-value-circulation",
+    "prepared_at": "2026-11-02T10:05:00+09:00",
+    "receipt_ref": null,
+    "handed_off_at": null
+  }
+}
