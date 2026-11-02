@@ -1,0 +1,106 @@
+{
+  "schema_version": "0.1.0",
+  "record_id": "record-duplicate-verification-id-001",
+  "updated_at": "2026-11-02T10:00:00+09:00",
+  "participant": {
+    "participant_id": "participant-example-028",
+    "identity_mode": "pseudonymous"
+  },
+  "question": {
+    "question_id": "question-example-028",
+    "text": "地域の図書館で、探している本を見つけやすくするにはどうすればよいか？",
+    "registered_at": "2026-11-02T09:00:00+09:00",
+    "submission_mode": "human",
+    "origin_ref": null
+  },
+  "consent": {
+    "consent_id": "consent-example-028",
+    "policy_ref": "example-policy:toikatsu-consent-v0.1",
+    "status": "active",
+    "recorded_at": "2026-11-02T08:59:00+09:00",
+    "withdrawn_at": null,
+    "scopes": {
+      "activity_recording": true,
+      "contribution_evaluation": true,
+      "external_handoff": false,
+      "public_sharing": true
+    }
+  },
+  "activities": [
+    {
+      "activity_id": "activity-example-028",
+      "question_id": "question-example-028",
+      "activity_type": "improvement",
+      "occurred_at": "2026-11-02T09:20:00+09:00",
+      "description": "問いを起点として、蔵書検索結果に書棚番号を表示する改善案と、館内の経路を表示する改善案を作成し、それぞれの検討経緯を記録した。",
+      "output_refs": [
+        "example-output:library-shelf-number-proposal-028",
+        "example-output:library-route-proposal-028",
+        "example-evidence:question-to-shelf-number-trace-028",
+        "example-evidence:question-to-route-trace-028"
+      ]
+    }
+  ],
+  "contributions": [
+    {
+      "contribution_id": "contribution-example-028-a",
+      "question_id": "question-example-028",
+      "beneficiary_id": "participant-example-028",
+      "proposed_by": "review-coordinator-example-028",
+      "proposed_at": "2026-11-02T09:30:00+09:00",
+      "activity_ids": [
+        "activity-example-028"
+      ],
+      "target_ref": "example-output:library-shelf-number-proposal-028",
+      "claim": "この問いが、蔵書検索結果に書棚番号を表示する改善案の作成に寄与した可能性がある。",
+      "evidence_refs": [
+        "example-evidence:question-to-shelf-number-trace-028"
+      ],
+      "status": "verified",
+      "verification": {
+        "verification_id": "verification-example-028",
+        "verifier_id": "independent-reviewer-example-028",
+        "verified_at": "2026-11-02T09:45:00+09:00",
+        "method_ref": "example-method:contribution-evidence-review-v0.1",
+        "evidence_refs": [
+          "example-evidence:question-to-shelf-number-trace-028"
+        ],
+        "decision_reason": "検討記録に問いを参照して課題を設定した経緯と、書棚番号の表示案へ反映した箇所が記載されていることを確認した。改善案の作成への貢献を認める。実際の利便性向上、唯一の貢献者であること、報酬の資格や額は判定していない。"
+      }
+    },
+    {
+      "contribution_id": "contribution-example-028-b",
+      "question_id": "question-example-028",
+      "beneficiary_id": "participant-example-028",
+      "proposed_by": "review-coordinator-example-028",
+      "proposed_at": "2026-11-02T09:35:00+09:00",
+      "activity_ids": [
+        "activity-example-028"
+      ],
+      "target_ref": "example-output:library-route-proposal-028",
+      "claim": "この問いが、館内の経路を表示する改善案の作成に寄与した可能性がある。",
+      "evidence_refs": [
+        "example-evidence:question-to-route-trace-028"
+      ],
+      "status": "verified",
+      "verification": {
+        "verification_id": "verification-example-028",
+        "verifier_id": "independent-reviewer-example-028",
+        "verified_at": "2026-11-02T09:50:00+09:00",
+        "method_ref": "example-method:contribution-evidence-review-v0.1",
+        "evidence_refs": [
+          "example-evidence:question-to-route-trace-028"
+        ],
+        "decision_reason": "検討記録に問いを参照して課題を設定した経緯と、館内の経路表示案へ反映した箇所が記載されていることを確認した。改善案の作成への貢献を認める。実際の利便性向上、唯一の貢献者であること、報酬の資格や額は判定していない。"
+      }
+    }
+  ],
+  "handoff": {
+    "status": "not_requested",
+    "contribution_ids": [],
+    "destination_ref": null,
+    "prepared_at": null,
+    "receipt_ref": null,
+    "handed_off_at": null
+  }
+}
