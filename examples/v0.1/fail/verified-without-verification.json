@@ -1,0 +1,69 @@
+{
+  "schema_version": "0.1.0",
+  "record_id": "record-verified-without-verification-001",
+  "updated_at": "2026-11-02T10:00:00+09:00",
+  "participant": {
+    "participant_id": "participant-example-012",
+    "identity_mode": "pseudonymous"
+  },
+  "question": {
+    "question_id": "question-example-012",
+    "text": "地域の図書館で、探している本を見つけやすくするにはどうすればよいか？",
+    "registered_at": "2026-11-02T09:00:00+09:00",
+    "submission_mode": "human",
+    "origin_ref": null
+  },
+  "consent": {
+    "consent_id": "consent-example-012",
+    "policy_ref": "example-policy:toikatsu-consent-v0.1",
+    "status": "active",
+    "recorded_at": "2026-11-02T08:59:00+09:00",
+    "withdrawn_at": null,
+    "scopes": {
+      "activity_recording": true,
+      "contribution_evaluation": true,
+      "external_handoff": false,
+      "public_sharing": true
+    }
+  },
+  "activities": [
+    {
+      "activity_id": "activity-example-012",
+      "question_id": "question-example-012",
+      "activity_type": "improvement",
+      "occurred_at": "2026-11-02T09:20:00+09:00",
+      "description": "問いを起点として、蔵書検索結果に書棚番号と館内の経路を表示する改善案を作成し、問いから改善案に至る検討経緯を記録した。",
+      "output_refs": [
+        "example-output:library-navigation-proposal-012",
+        "example-evidence:question-to-proposal-trace-012"
+      ]
+    }
+  ],
+  "contributions": [
+    {
+      "contribution_id": "contribution-example-012",
+      "question_id": "question-example-012",
+      "beneficiary_id": "participant-example-012",
+      "proposed_by": "review-coordinator-example-012",
+      "proposed_at": "2026-11-02T09:35:00+09:00",
+      "activity_ids": [
+        "activity-example-012"
+      ],
+      "target_ref": "example-output:library-navigation-proposal-012",
+      "claim": "この問いが、蔵書検索と館内案内の接続を検討する契機となり、書棚番号と経路を表示する改善案の作成に寄与した可能性がある。",
+      "evidence_refs": [
+        "example-evidence:question-to-proposal-trace-012"
+      ],
+      "status": "verified",
+      "verification": null
+    }
+  ],
+  "handoff": {
+    "status": "not_requested",
+    "contribution_ids": [],
+    "destination_ref": null,
+    "prepared_at": null,
+    "receipt_ref": null,
+    "handed_off_at": null
+  }
+}
