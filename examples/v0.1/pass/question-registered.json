@@ -1,0 +1,39 @@
+{
+  "schema_version": "0.1.0",
+  "record_id": "record-question-registered-001",
+  "updated_at": "2026-11-02T09:00:00+09:00",
+  "participant": {
+    "participant_id": "participant-example-001",
+    "identity_mode": "pseudonymous"
+  },
+  "question": {
+    "question_id": "question-example-001",
+    "text": "地域の図書館で、探している本を見つけやすくするにはどうすればよいか？",
+    "registered_at": "2026-11-02T09:00:00+09:00",
+    "submission_mode": "human",
+    "origin_ref": null
+  },
+  "consent": {
+    "consent_id": "consent-example-001",
+    "policy_ref": "example-policy:toikatsu-consent-v0.1",
+    "status": "active",
+    "recorded_at": "2026-11-02T08:59:00+09:00",
+    "withdrawn_at": null,
+    "scopes": {
+      "activity_recording": true,
+      "contribution_evaluation": true,
+      "external_handoff": false,
+      "public_sharing": true
+    }
+  },
+  "activities": [],
+  "contributions": [],
+  "handoff": {
+    "status": "not_requested",
+    "contribution_ids": [],
+    "destination_ref": null,
+    "prepared_at": null,
+    "receipt_ref": null,
+    "handed_off_at": null
+  }
+}
