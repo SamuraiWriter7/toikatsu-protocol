@@ -1,0 +1,664 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Toikatsu Protocol v0.1",
+  "description": "Human question registration, activity traces, contribution verification, and downstream handoff.",
+  "$comment": "Enable date-time format validation. Cross-reference integrity, timestamp ordering, identity separation, evidence overlap, and state transition history require additional validation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_id",
+    "updated_at",
+    "participant",
+    "question",
+    "consent",
+    "activities",
+    "contributions",
+    "handoff"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "record_id": {
+      "$ref": "#/$defs/nonBlankString"
+    },
+    "updated_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "participant": {
+      "$ref": "#/$defs/participant"
+    },
+    "question": {
+      "$ref": "#/$defs/question"
+    },
+    "consent": {
+      "$ref": "#/$defs/consent"
+    },
+    "activities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/activity"
+      }
+    },
+    "contributions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/contribution"
+      }
+    },
+    "handoff": {
+      "$ref": "#/$defs/handoff"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "scopes": {
+                "properties": {
+                  "activity_recording": {
+                    "const": false
+                  }
+                },
+                "required": [
+                  "activity_recording"
+                ]
+              }
+            },
+            "required": [
+              "scopes"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "activities": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "scopes": {
+                "properties": {
+                  "contribution_evaluation": {
+                    "const": false
+                  }
+                },
+                "required": [
+                  "contribution_evaluation"
+                ]
+              }
+            },
+            "required": [
+              "scopes"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "contributions": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "handoff": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "ready",
+                  "handed_off",
+                  "cancelled"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "handoff"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "scopes": {
+                "properties": {
+                  "external_handoff": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          },
+          "contributions": {
+            "contains": {
+              "properties": {
+                "status": {
+                  "const": "verified"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "minContains": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "handoff": {
+            "properties": {
+              "status": {
+                "const": "ready"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "handoff"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "status": {
+                "const": "active"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nonBlankString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "nullableString": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nullableTimestamp": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "referenceArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonBlankString"
+      }
+    },
+    "nonEmptyReferenceArray": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonBlankString"
+      }
+    },
+    "participant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "participant_id",
+        "identity_mode"
+      ],
+      "properties": {
+        "participant_id": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "identity_mode": {
+          "enum": [
+            "pseudonymous",
+            "identified"
+          ]
+        }
+      }
+    },
+    "question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "question_id",
+        "text",
+        "registered_at",
+        "submission_mode",
+        "origin_ref"
+      ],
+      "properties": {
+        "question_id": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "text": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "registered_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "submission_mode": {
+          "enum": [
+            "human",
+            "human_with_ai_assistance"
+          ]
+        },
+        "origin_ref": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "consentScopes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activity_recording",
+        "contribution_evaluation",
+        "external_handoff",
+        "public_sharing"
+      ],
+      "properties": {
+        "activity_recording": {
+          "type": "boolean"
+        },
+        "contribution_evaluation": {
+          "type": "boolean"
+        },
+        "external_handoff": {
+          "type": "boolean"
+        },
+        "public_sharing": {
+          "type": "boolean"
+        }
+      }
+    },
+    "consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "consent_id",
+        "policy_ref",
+        "status",
+        "recorded_at",
+        "withdrawn_at",
+        "scopes"
+      ],
+      "properties": {
+        "consent_id": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "policy_ref": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "withdrawn"
+          ]
+        },
+        "recorded_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "withdrawn_at": {
+          "$ref": "#/$defs/nullableTimestamp"
+        },
+        "scopes": {
+          "$ref": "#/$defs/consentScopes"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "status": {
+              "const": "active"
+            },
+            "withdrawn_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {
+              "const": "withdrawn"
+            },
+            "withdrawn_at": {
+              "$ref": "#/$defs/timestamp"
+            }
+          }
+        }
+      ]
+    },
+    "activity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activity_id",
+        "question_id",
+        "activity_type",
+        "occurred_at",
+        "description",
+        "output_refs"
+      ],
+      "properties": {
+        "activity_id": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "question_id": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "activity_type": {
+          "enum": [
+            "exploration",
+            "derived_question",
+            "improvement",
+            "evaluation"
+          ]
+        },
+        "occurred_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "description": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "output_refs": {
+          "$ref": "#/$defs/referenceArray"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verification_id",
+        "verifier_id",
+        "verified_at",
+        "method_ref",
+        "evidence_refs",
+        "decision_reason"
+      ],
+      "properties": {
+        "verification_id": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "verifier_id": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "verified_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "method_ref": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "evidence_refs": {
+          "$ref": "#/$defs/nonEmptyReferenceArray"
+        },
+        "decision_reason": {
+          "$ref": "#/$defs/nonBlankString"
+        }
+      }
+    },
+    "contribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contribution_id",
+        "question_id",
+        "beneficiary_id",
+        "proposed_by",
+        "proposed_at",
+        "activity_ids",
+        "target_ref",
+        "claim",
+        "evidence_refs",
+        "status",
+        "verification"
+      ],
+      "properties": {
+        "contribution_id": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "question_id": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "beneficiary_id": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "proposed_by": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "proposed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "activity_ids": {
+          "$ref": "#/$defs/nonEmptyReferenceArray"
+        },
+        "target_ref": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "claim": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "evidence_refs": {
+          "$ref": "#/$defs/nonEmptyReferenceArray"
+        },
+        "status": {
+          "enum": [
+            "candidate",
+            "verified",
+            "rejected"
+          ]
+        },
+        "verification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/verification"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "status": {
+              "const": "candidate"
+            },
+            "verification": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {
+              "enum": [
+                "verified",
+                "rejected"
+              ]
+            },
+            "verification": {
+              "$ref": "#/$defs/verification"
+            }
+          }
+        }
+      ]
+    },
+    "handoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "contribution_ids",
+        "destination_ref",
+        "prepared_at",
+        "receipt_ref",
+        "handed_off_at"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "not_requested",
+            "ready",
+            "handed_off",
+            "cancelled"
+          ]
+        },
+        "contribution_ids": {
+          "$ref": "#/$defs/referenceArray"
+        },
+        "destination_ref": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "prepared_at": {
+          "$ref": "#/$defs/nullableTimestamp"
+        },
+        "receipt_ref": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "handed_off_at": {
+          "$ref": "#/$defs/nullableTimestamp"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "status": {
+              "const": "not_requested"
+            },
+            "contribution_ids": {
+              "maxItems": 0
+            },
+            "destination_ref": {
+              "type": "null"
+            },
+            "prepared_at": {
+              "type": "null"
+            },
+            "receipt_ref": {
+              "type": "null"
+            },
+            "handed_off_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {
+              "const": "ready"
+            },
+            "contribution_ids": {
+              "minItems": 1
+            },
+            "destination_ref": {
+              "$ref": "#/$defs/nonBlankString"
+            },
+            "prepared_at": {
+              "$ref": "#/$defs/timestamp"
+            },
+            "receipt_ref": {
+              "type": "null"
+            },
+            "handed_off_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {
+              "const": "handed_off"
+            },
+            "contribution_ids": {
+              "minItems": 1
+            },
+            "destination_ref": {
+              "$ref": "#/$defs/nonBlankString"
+            },
+            "prepared_at": {
+              "$ref": "#/$defs/timestamp"
+            },
+            "receipt_ref": {
+              "$ref": "#/$defs/nonBlankString"
+            },
+            "handed_off_at": {
+              "$ref": "#/$defs/timestamp"
+            }
+          }
+        },
+        {
+          "properties": {
+            "status": {
+              "const": "cancelled"
+            },
+            "contribution_ids": {
+              "minItems": 1
+            },
+            "destination_ref": {
+              "$ref": "#/$defs/nonBlankString"
+            },
+            "prepared_at": {
+              "$ref": "#/$defs/timestamp"
+            },
+            "receipt_ref": {
+              "type": "null"
+            },
+            "handed_off_at": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
