@@ -3,7 +3,7 @@
 
 Install: python -m pip install jsonschema
 Run:     python scripts/validate_examples.py
-Override: python scripts/validate_examples.py --schema schemas/toikatsu-record-v0.1.schema.json
+Override: python scripts/validate_examples.py --schema schemas/toikatsu-v0.1.schema.json
 """
 
 from __future__ import annotations
@@ -43,6 +43,7 @@ REASONS = {
     "verification-evidence-mismatch": "verification_evidence_mismatch",
     "verification-before-proposal": "verification_before_proposal",
     "timestamp-order-mismatch": "timestamp_order_mismatch",
+    "contribution-target-mismatch": "contribution_target_mismatch",
 }
 
 
@@ -79,8 +80,6 @@ def semantic_errors(doc: dict[str, Any]) -> list[tuple[str, str]]:
     scopes = consent.get("scopes") or {}
     withdrawn = stamp(consent.get("withdrawn_at"))
     consent_time = stamp(consent.get("recorded_at"))
-    question_time = stamp(question.get("registered_at"))
-    update_time = stamp(doc.get("updated_at"))
     is_withdrawn = consent.get("status") == "withdrawn"
 
     def check_consent(scope: str, at: Any, code: str, where: str) -> None:
@@ -141,19 +140,24 @@ def semantic_errors(doc: dict[str, Any]) -> list[tuple[str, str]]:
         check_consent("contribution_evaluation", proposed, "contribution_consent_missing", f"contributions[{cid}]")
         chronological(question.get("registered_at"), proposed, f"contributions[{cid}]")
         chronological(proposed, doc.get("updated_at"), f"contributions[{cid}] -> updated_at")
+        declared_targets: set[str] = set()
         for aid in strings(c.get("activity_ids")):
             activity = activity_by_id.get(aid)
             if activity is None:
                 err("unknown_activity_reference", f"contributions[{cid}] -> {aid}")
             else:
                 chronological(activity.get("occurred_at"), proposed, f"activities[{aid}] -> contributions[{cid}]")
+                declared_targets.update(strings(activity.get("output_refs")))
+
+        if c.get("target_ref") not in declared_targets:
+            err("contribution_target_mismatch", f"contributions[{cid}]: target_ref={c.get('target_ref')}")
 
         verification = c.get("verification")
         if c.get("status") == "verified" and not isinstance(verification, dict):
             err("missing_verification", f"contributions[{cid}]")
         if not isinstance(verification, dict):
             continue
-        if c.get("status") != "verified":
+        if c.get("status") == "candidate":
             err("unexpected_verification", f"contributions[{cid}]")
         if verification.get("verifier_id") in {c.get("beneficiary_id"), participant.get("participant_id")}:
             err("verifier_beneficiary_conflict", f"contributions[{cid}]")
@@ -191,8 +195,13 @@ def semantic_errors(doc: dict[str, Any]) -> list[tuple[str, str]]:
             if scopes.get("external_handoff") is not True or not consent:
                 err("handoff_consent_missing", f"handoff.status={status}")
             if is_withdrawn and withdrawn:
-                err("handoff_after_withdrawal", f"handoff.status={status}")
-            if not handoff.get("receipt_ref"):
+                if status == "ready":
+                    err("handoff_after_withdrawal", f"handoff.status={status}")
+                elif status in {"handed_off", "completed"}:
+                    dispatched = stamp(handoff.get("handed_off_at"))
+                    if dispatched is None or dispatched > withdrawn:
+                        err("handoff_after_withdrawal", f"handoff.status={status}")
+            if status in {"handed_off", "completed"} and not handoff.get("receipt_ref"):
                 err("handoff_without_receipt", f"handoff.status={status}")
         chronological(handoff.get("prepared_at"), handoff.get("handed_off_at"), "handoff order")
         chronological(handoff.get("handed_off_at"), doc.get("updated_at"), "handoff -> updated_at")
@@ -244,11 +253,10 @@ def main() -> int:
             schema = json.loads(schema_path.read_text(encoding="utf-8"))
             validator_cls = validators.validator_for(schema)
             validator_cls.check_schema(schema)
-            # Resolve relative $ref paths against the schema file.
-            from jsonschema import RefResolver
-            validator = validator_cls(schema, resolver=RefResolver(base_uri=schema_path.as_uri(), referrer=schema))
+            # The v0.1 schema uses internal #/$defs references only.
+            validator = validator_cls(schema, format_checker=validator_cls.FORMAT_CHECKER)
             print(f"[schema] {schema_path.relative_to(root)}")
-        except (OSError, ValueError, Exception) as exc:
+        except Exception as exc:
             print(f"ERROR: Schema initialization failed: {exc}", file=sys.stderr)
             return 2
 
