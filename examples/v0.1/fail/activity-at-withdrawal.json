@@ -1,0 +1,51 @@
+{
+  "schema_version": "0.1.0",
+  "record_id": "record-activity-at-withdrawal-001",
+  "updated_at": "2026-11-02T10:30:00+09:00",
+  "participant": {
+    "participant_id": "participant-example-033",
+    "identity_mode": "pseudonymous"
+  },
+  "question": {
+    "question_id": "question-example-033",
+    "text": "地域の図書館で、探している本を見つけやすくするにはどうすればよいか？",
+    "registered_at": "2026-11-02T09:00:00+09:00",
+    "submission_mode": "human",
+    "origin_ref": null
+  },
+  "consent": {
+    "consent_id": "consent-example-033",
+    "policy_ref": "example-policy:toikatsu-consent-v0.1",
+    "status": "withdrawn",
+    "recorded_at": "2026-11-02T08:59:00+09:00",
+    "withdrawn_at": "2026-11-02T10:00:00+09:00",
+    "scopes": {
+      "activity_recording": true,
+      "contribution_evaluation": true,
+      "external_handoff": false,
+      "public_sharing": true
+    }
+  },
+  "activities": [
+    {
+      "activity_id": "activity-example-033",
+      "question_id": "question-example-033",
+      "activity_type": "exploration",
+      "occurred_at": "2026-11-02T10:00:00+09:00",
+      "description": "参加者が同意を撤回した時刻と同時刻に、問いを起点とする図書館の蔵書検索方法の調査活動を新たに記録した。",
+      "output_refs": [
+        "example-output:library-search-research-033",
+        "example-evidence:library-search-research-trace-033"
+      ]
+    }
+  ],
+  "contributions": [],
+  "handoff": {
+    "status": "not_requested",
+    "contribution_ids": [],
+    "destination_ref": null,
+    "prepared_at": null,
+    "receipt_ref": null,
+    "handed_off_at": null
+  }
+}
