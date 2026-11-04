@@ -384,20 +384,202 @@ TIBの意味変換・参照・検証は、元のToikatsu記録を直接変更し
 
 ## 10. Consistency Decision Register
 
+This register tracks normative consistency between
+Toikatsu Protocol v0.1, its semantic validator,
+and Toikatsu Interoperability Boundary v0.1.
+
+Review updated: 2026-11-04
+
+### 10.1 Decision Status
+
+| Status | Meaning |
+|---|---|
+| OPEN | 未解決の規範差異 |
+| ACCEPTED | 設計原則を採用 |
+| IMPLEMENTED | 対応する検証規則を実装 |
+| VERIFIED | 規範・実装・テストの整合性を確認 |
+| CLOSED | 必要な対応と確認が完了 |
+
+IMPLEMENTEDは、仕様全体の適合性を
+証明するものではない。
+
+VERIFIEDは、定義された検証範囲での
+整合性確認を示す。
+
+### 10.2 Decision Register
+
 | ID | Subject | Decision | Status |
 |---|---|---|---|
-| CR-001 | Evidence alignment | 規範の統一が必要 | OPEN |
-| CR-002 | Verifier independence | 提案者との分離を追加検証 | OPEN |
-| CR-003 | Withdrawal timestamps | 同時刻の扱いを統一 | OPEN |
+| CR-001 | Evidence alignment | 全申告証拠の照合を採用候補とし、仕様本文を統一する | OPEN |
+| CR-002 | Verifier independence | 提案者と検証者のID分離を意味検証に追加 | IMPLEMENTED |
+| CR-003 | Withdrawal timestamps | 撤回時刻以降の新規処理を禁止 | IMPLEMENTED |
 | CR-004 | Historical handoff | 履歴と現在の認可を分離 | ACCEPTED |
 | CR-005 | Receipt meaning | 受領・決済・還元を分離 | ACCEPTED |
 | CR-006 | UNRESOLVED | 判定不能と処理保留を分離 | ACCEPTED |
 | CR-007 | Authorization | 境界PASSと実行認可を分離 | ACCEPTED |
 | CR-008 | Failure isolation | 元記録を保護 | ACCEPTED |
 
-ACCEPTEDは設計方針への合意を示し、実装済みや検証済みを意味しない。
+### 10.3 CR-001 — Evidence Alignment
+
+Status: OPEN
+
+Current specification:
+
+The verification evidence references MUST share
+at least one reference with the contribution evidence.
+
+Current validator:
+
+All contribution evidence references must be
+included in the verification evidence references.
+
+These rules are not equivalent.
+
+The current validator behavior is retained.
+
+Before closing CR-001:
+
+1. Update `specs/toikatsu-v0.1.md`.
+2. Define the complete evidence inclusion rule.
+3. Confirm compatibility with existing examples.
+4. Verify the revised specification and validator.
+
+No new JSON field is required.
+
+### 10.4 CR-002 — Verifier Independence
+
+Status: IMPLEMENTED
+
+The semantic validator now detects conflicts
+between:
+
+- `verifier_id` and `beneficiary_id`
+- `verifier_id` and `participant.participant_id`
+- `verifier_id` and `proposed_by`
+
+The existing beneficiary-conflict violation code
+is preserved.
+
+A separate violation code is used for proposer
+conflicts:
+
+`verifier_proposer_conflict`
+
+Regression test:
+
+`examples/v0.1/fail/verifier-proposer-conflict.json`
+
+GitHub Actions passed following the validator update.
+
+This establishes identifier-based separation.
+
+Actual organizational independence and conflicts
+of interest remain operational concerns.
+
+### 10.5 CR-003 — Withdrawal Timestamp Boundary
+
+Status: IMPLEMENTED
+
+The semantic validator was updated to reject
+new operations whose timestamps are equal to
+or later than the consent withdrawal timestamp.
+
+Normative comparison:
+
+```text
+operation_time < withdrawn_at
+    -> eligible for historical validation
+
+operation_time >= withdrawn_at
+    -> prohibited as a new operation
+```
+
+Regression tests:
+
+- `activity-at-withdrawal.json`
+- `contribution-at-withdrawal.json`
+- `verification-at-withdrawal.json`
+- `handoff-at-withdrawal.json`
+
+The updated GitHub Actions workflow passed.
+
+Historical handoffs completed before withdrawal
+remain distinguishable from prohibited new handoffs.
+
+The validator checks recorded timestamps;
+it does not independently prove the actual order
+of simultaneous real-world events.
+
+### 10.6 Validation Evidence
+
+The Toikatsu v0.1 validation suite originally
+contained 31 positive and negative examples.
+
+Five additional negative cases were introduced
+for verifier independence and withdrawal-time
+boundary conditions.
+
+Expected regression coverage:
+
+```text
+Existing examples: 31
+Additional examples: 5
+Total: 36
+```
+
+The updated GitHub Actions workflow passed.
+
+This confirms that the executed test suite met
+its configured success conditions.
+
+It does not establish:
+
+- Authenticity of external evidence
+- Actual independence of verification organizations
+- Full historical state-transition correctness
+- Production readiness
+- Settlement or redistribution correctness
+- TIB interoperability conformance
+
+### 10.7 Remaining Work
+
+CR-001 remains OPEN until the normative
+evidence alignment rule is updated.
+
+CR-002 and CR-003 may be advanced from
+IMPLEMENTED to VERIFIED after confirming
+the final specification wording, regression
+coverage, and effective validator behavior.
+
+CR-004 through CR-008 remain ACCEPTED design
+principles unless corresponding implementation
+and validation evidence is established.
+
+### 10.8 Closure Policy
+
+An issue may be marked CLOSED only when:
+
+1. The applicable normative requirement is clear.
+2. Required implementation changes are complete.
+3. Relevant positive and negative tests pass.
+4. No unresolved compatibility conflict remains.
+5. The decision and validation evidence are recorded.
+
+Closing an issue does not imply that the entire
+protocol is production-ready.
+```
 
 ---
+
+## 次の作業
+
+残るCR-001は、仕様本文の一か所を修正すれば、現行Validatorと統一できる見込みです。
+
+`specs/toikatsu-v0.1.md` の第10.2節にある「少なくとも一つの参照を共有」という規則を、**「貢献候補の全証拠参照を検証記録に含める」**へ変更します。
+
+その後、GitHub Actionsで再確認すれば、CR-001〜CR-003をまとめてCLOSEDに進められます。
+
+この順序なら、既存の記録形式を変更せずに、Toikatsu本体とTIBの規範整合性を確立できます。
 
 ## 11. Compatibility Policy
 
