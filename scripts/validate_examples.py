@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Validate Toikatsu v0.1 examples (JSON Schema + semantic rules).
+"""Validate Toikatsu v0.1 JSON examples against schema and semantic rules.
 
-Install: python -m pip install jsonschema
+Install: python -m pip install 'jsonschema>=4.18,<5'
 Run:     python scripts/validate_examples.py
 Override: python scripts/validate_examples.py --schema schemas/toikatsu-v0.1.schema.json
 """
@@ -21,20 +21,27 @@ try:
 except ImportError:
     sys.exit("ERROR: jsonschema is required. Run: python -m pip install jsonschema")
 
-
 ROOT = Path(__file__).resolve().parents[1]
+
+# An expected semantic reason prevents a negative fixture from passing merely
+# because it fails for some unrelated reason.
 REASONS = {
     "self-verified-contribution": "verifier_beneficiary_conflict",
     "verifier-beneficiary-conflict": "verifier_beneficiary_conflict",
+    "verifier-proposer-conflict": "verifier_proposer_conflict",
     "candidate-contribution-handoff": "unverified_contribution_handoff",
     "rejected-contribution-handoff": "unverified_contribution_handoff",
     "activity-without-consent": "activity_consent_missing",
     "contribution-without-consent": "contribution_consent_missing",
     "handoff-without-consent": "handoff_consent_missing",
     "activity-after-withdrawal": "activity_after_withdrawal",
+    "activity-at-withdrawal": "activity_after_withdrawal",
     "contribution-after-withdrawal": "contribution_after_withdrawal",
+    "contribution-at-withdrawal": "contribution_after_withdrawal",
     "verification-after-withdrawal": "verification_after_withdrawal",
+    "verification-at-withdrawal": "verification_after_withdrawal",
     "handoff-after-withdrawal": "handoff_after_withdrawal",
+    "handoff-at-withdrawal": "handoff_after_withdrawal",
     "ready-after-withdrawal": "handoff_after_withdrawal",
     "handoff-without-receipt": "handoff_without_receipt",
     "duplicate-activity-id": "duplicate_activity_id",
@@ -88,7 +95,8 @@ def semantic_errors(doc: dict[str, Any]) -> list[tuple[str, str]]:
             err(code, where)
         if consent_time and when and when < consent_time:
             err("timestamp_order_mismatch", where + ": before consent")
-        if is_withdrawn and withdrawn and when and when > withdrawn:
+        # The instant of withdrawal is already outside the consent window.
+        if is_withdrawn and withdrawn and when and when >= withdrawn:
             after_codes = {
                 "activity_recording": "activity_after_withdrawal",
                 "contribution_evaluation": "contribution_after_withdrawal",
@@ -148,7 +156,6 @@ def semantic_errors(doc: dict[str, Any]) -> list[tuple[str, str]]:
             else:
                 chronological(activity.get("occurred_at"), proposed, f"activities[{aid}] -> contributions[{cid}]")
                 declared_targets.update(strings(activity.get("output_refs")))
-
         if c.get("target_ref") not in declared_targets:
             err("contribution_target_mismatch", f"contributions[{cid}]: target_ref={c.get('target_ref')}")
 
@@ -161,6 +168,8 @@ def semantic_errors(doc: dict[str, Any]) -> list[tuple[str, str]]:
             err("unexpected_verification", f"contributions[{cid}]")
         if verification.get("verifier_id") in {c.get("beneficiary_id"), participant.get("participant_id")}:
             err("verifier_beneficiary_conflict", f"contributions[{cid}]")
+        if verification.get("verifier_id") == c.get("proposed_by"):
+            err("verifier_proposer_conflict", f"contributions[{cid}]")
         claimed = set(strings(c.get("evidence_refs")))
         reviewed = set(strings(verification.get("evidence_refs")))
         if not claimed.issubset(reviewed):
@@ -171,8 +180,7 @@ def semantic_errors(doc: dict[str, Any]) -> list[tuple[str, str]]:
             err("verification_before_proposal", f"contributions[{cid}]")
             err("timestamp_order_mismatch", f"contributions[{cid}]: verification before proposal")
         chronological(verified, doc.get("updated_at"), f"verification[{cid}] -> updated_at")
-        # Verification is itself a contribution evaluation, subject to withdrawal.
-        if is_withdrawn and withdrawn and t_verified and t_verified > withdrawn:
+        if is_withdrawn and withdrawn and t_verified and t_verified >= withdrawn:
             err("verification_after_withdrawal", f"contributions[{cid}]")
         if consent_time and t_verified and t_verified < consent_time:
             err("timestamp_order_mismatch", f"verification[{cid}] before consent")
@@ -190,7 +198,6 @@ def semantic_errors(doc: dict[str, Any]) -> list[tuple[str, str]]:
             when = handoff.get(time_key)
             if when is not None:
                 check_consent("external_handoff", when, "handoff_consent_missing", f"handoff.{time_key}")
-        # For readiness, a handoff is already authorized/prepared even without a dispatch timestamp.
         if status in {"ready", "handed_off", "completed"}:
             if scopes.get("external_handoff") is not True or not consent:
                 err("handoff_consent_missing", f"handoff.status={status}")
@@ -199,7 +206,7 @@ def semantic_errors(doc: dict[str, Any]) -> list[tuple[str, str]]:
                     err("handoff_after_withdrawal", f"handoff.status={status}")
                 elif status in {"handed_off", "completed"}:
                     dispatched = stamp(handoff.get("handed_off_at"))
-                    if dispatched is None or dispatched > withdrawn:
+                    if dispatched is None or dispatched >= withdrawn:
                         err("handoff_after_withdrawal", f"handoff.status={status}")
             if status in {"handed_off", "completed"} and not handoff.get("receipt_ref"):
                 err("handoff_without_receipt", f"handoff.status={status}")
@@ -253,14 +260,13 @@ def main() -> int:
             schema = json.loads(schema_path.read_text(encoding="utf-8"))
             validator_cls = validators.validator_for(schema)
             validator_cls.check_schema(schema)
-            # The v0.1 schema uses internal #/$defs references only.
             validator = validator_cls(schema, format_checker=validator_cls.FORMAT_CHECKER)
             print(f"[schema] {schema_path.relative_to(root)}")
         except Exception as exc:
             print(f"ERROR: Schema initialization failed: {exc}", file=sys.stderr)
             return 2
 
-    passed = 0
+    matched_count = 0
     for path in paths:
         expected = path.parent.name.upper()
         relative = path.relative_to(root)
@@ -271,20 +277,23 @@ def main() -> int:
             if not isinstance(doc, dict):
                 raise ValueError("Top-level JSON must be an object")
             if validator is not None:
-                schema_issues = [f"{'.'.join(map(str, e.absolute_path))}: {e.message}"
-                                 for e in validator.iter_errors(doc)]
+                schema_issues = [
+                    f"{'.'.join(map(str, e.absolute_path))}: {e.message}"
+                    for e in validator.iter_errors(doc)
+                ]
             problems = semantic_errors(doc)
         except (ValueError, OSError) as exc:
             schema_issues = [str(exc)]
         codes = {code for code, _ in problems}
         actual = "FAIL" if schema_issues or problems else "PASS"
         target = REASONS.get(path.stem)
-        # Targeted negative examples must fail for their intended semantic reason.
         target_ok = expected != "FAIL" or target is None or target in codes
         matched = actual == expected and target_ok
-        passed += matched
-        print(f"[{'MATCH' if matched else 'MISMATCH'}] {relative} expected={expected} actual={actual}"
-              + (f" reason={target} {'OK' if target_ok else 'MISSING'}" if target else ""))
+        matched_count += matched
+        print(
+            f"[{'MATCH' if matched else 'MISMATCH'}] {relative} expected={expected} actual={actual}"
+            + (f" reason={target} {'OK' if target_ok else 'MISSING'}" if target else "")
+        )
         if not matched:
             for issue in schema_issues[:5]:
                 print(f"  [schema] {issue}")
@@ -292,8 +301,8 @@ def main() -> int:
                 print(f"  [semantic:{code}] {where}")
             if not schema_issues and not problems:
                 print("  [info] No violations detected")
-    print(f"\n=== Toikatsu v0.1: {passed}/{len(paths)} matched ===")
-    return 0 if passed == len(paths) else 1
+    print(f"\n=== Toikatsu v0.1: {matched_count}/{len(paths)} matched ===")
+    return 0 if matched_count == len(paths) else 1
 
 
 if __name__ == "__main__":
