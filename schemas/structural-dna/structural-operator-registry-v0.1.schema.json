@@ -1,0 +1,415 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/toikatsu/schemas/structural-dna/structural-operator-registry-v0.1.schema.json",
+  "title": "Structural DNA Operator Registry v0.1",
+  "description": "Machine-readable registry schema for the twelve core Structural DNA transformation operators. This schema validates vocabulary records, not the semantic correctness of question classifications.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_id",
+    "registry_version",
+    "specification_ref",
+    "status",
+    "operators"
+  ],
+  "properties": {
+    "registry_id": {
+      "const": "sdna-operator-registry"
+    },
+    "registry_version": {
+      "const": "0.1.0"
+    },
+    "specification_ref": {
+      "const": "specs/structural-dna/structural-transformation-vocabulary-v0.1.md"
+    },
+    "status": {
+      "const": "draft"
+    },
+    "operators": {
+      "type": "object",
+      "description": "Exactly twelve operator definitions are required for the v0.1 core registry.",
+      "additionalProperties": false,
+      "minProperties": 12,
+      "maxProperties": 12,
+      "required": [
+        "OP-001",
+        "OP-002",
+        "OP-003",
+        "OP-004",
+        "OP-005",
+        "OP-006",
+        "OP-007",
+        "OP-008",
+        "OP-009",
+        "OP-010",
+        "OP-011",
+        "OP-012"
+      ],
+      "properties": {
+        "OP-001": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/operatorDefinition"
+            },
+            {
+              "properties": {
+                "operator_id": {
+                  "const": "OP-001"
+                },
+                "name": {
+                  "const": "detect_limit"
+                }
+              }
+            }
+          ]
+        },
+        "OP-002": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/operatorDefinition"
+            },
+            {
+              "properties": {
+                "operator_id": {
+                  "const": "OP-002"
+                },
+                "name": {
+                  "const": "distribute"
+                }
+              }
+            }
+          ]
+        },
+        "OP-003": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/operatorDefinition"
+            },
+            {
+              "properties": {
+                "operator_id": {
+                  "const": "OP-003"
+                },
+                "name": {
+                  "const": "centralize"
+                }
+              }
+            }
+          ]
+        },
+        "OP-004": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/operatorDefinition"
+            },
+            {
+              "properties": {
+                "operator_id": {
+                  "const": "OP-004"
+                },
+                "name": {
+                  "const": "connect"
+                }
+              }
+            }
+          ]
+        },
+        "OP-005": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/operatorDefinition"
+            },
+            {
+              "properties": {
+                "operator_id": {
+                  "const": "OP-005"
+                },
+                "name": {
+                  "const": "separate"
+                }
+              }
+            }
+          ]
+        },
+        "OP-006": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/operatorDefinition"
+            },
+            {
+              "properties": {
+                "operator_id": {
+                  "const": "OP-006"
+                },
+                "name": {
+                  "const": "circulate"
+                }
+              }
+            }
+          ]
+        },
+        "OP-007": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/operatorDefinition"
+            },
+            {
+              "properties": {
+                "operator_id": {
+                  "const": "OP-007"
+                },
+                "name": {
+                  "const": "regulate"
+                }
+              }
+            }
+          ]
+        },
+        "OP-008": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/operatorDefinition"
+            },
+            {
+              "properties": {
+                "operator_id": {
+                  "const": "OP-008"
+                },
+                "name": {
+                  "const": "reverse"
+                }
+              }
+            }
+          ]
+        },
+        "OP-009": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/operatorDefinition"
+            },
+            {
+              "properties": {
+                "operator_id": {
+                  "const": "OP-009"
+                },
+                "name": {
+                  "const": "simplify"
+                }
+              }
+            }
+          ]
+        },
+        "OP-010": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/operatorDefinition"
+            },
+            {
+              "properties": {
+                "operator_id": {
+                  "const": "OP-010"
+                },
+                "name": {
+                  "const": "combine"
+                }
+              }
+            }
+          ]
+        },
+        "OP-011": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/operatorDefinition"
+            },
+            {
+              "properties": {
+                "operator_id": {
+                  "const": "OP-011"
+                },
+                "name": {
+                  "const": "stabilize"
+                }
+              }
+            }
+          ]
+        },
+        "OP-012": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/operatorDefinition"
+            },
+            {
+              "properties": {
+                "operator_id": {
+                  "const": "OP-012"
+                },
+                "name": {
+                  "const": "preserve"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyText": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nonEmptyTextArray": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonEmptyText"
+      }
+    },
+    "operatorName": {
+      "type": "string",
+      "enum": [
+        "detect_limit",
+        "distribute",
+        "centralize",
+        "connect",
+        "separate",
+        "circulate",
+        "regulate",
+        "reverse",
+        "simplify",
+        "combine",
+        "stabilize",
+        "preserve"
+      ]
+    },
+    "structuralPattern": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_pattern",
+        "target_pattern"
+      ],
+      "properties": {
+        "source_pattern": {
+          "$ref": "#/$defs/nonEmptyText"
+        },
+        "target_pattern": {
+          "$ref": "#/$defs/nonEmptyText"
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyText"
+        }
+      }
+    },
+    "operatorExample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "question",
+        "explanation"
+      ],
+      "properties": {
+        "question": {
+          "$ref": "#/$defs/nonEmptyText"
+        },
+        "explanation": {
+          "$ref": "#/$defs/nonEmptyText"
+        }
+      }
+    },
+    "operatorRelationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_operator_id",
+        "relation",
+        "description"
+      ],
+      "properties": {
+        "target_operator_id": {
+          "type": "string",
+          "enum": [
+            "OP-001",
+            "OP-002",
+            "OP-003",
+            "OP-004",
+            "OP-005",
+            "OP-006",
+            "OP-007",
+            "OP-008",
+            "OP-009",
+            "OP-010",
+            "OP-011",
+            "OP-012"
+          ]
+        },
+        "relation": {
+          "type": "string",
+          "enum": [
+            "contrasts_with",
+            "complements",
+            "may_precede",
+            "may_follow",
+            "overlaps_with"
+          ]
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyText"
+        }
+      }
+    },
+    "operatorDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operator_id",
+        "name",
+        "definition",
+        "preconditions",
+        "expected_transformation",
+        "example",
+        "non_example",
+        "cautions",
+        "status"
+      ],
+      "properties": {
+        "operator_id": {
+          "type": "string",
+          "pattern": "^OP-0(0[1-9]|1[0-2])$"
+        },
+        "name": {
+          "$ref": "#/$defs/operatorName"
+        },
+        "definition": {
+          "$ref": "#/$defs/nonEmptyText"
+        },
+        "preconditions": {
+          "$ref": "#/$defs/nonEmptyTextArray"
+        },
+        "expected_transformation": {
+          "$ref": "#/$defs/structuralPattern"
+        },
+        "example": {
+          "$ref": "#/$defs/operatorExample"
+        },
+        "non_example": {
+          "$ref": "#/$defs/operatorExample"
+        },
+        "cautions": {
+          "$ref": "#/$defs/nonEmptyTextArray"
+        },
+        "relationships": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/operatorRelationship"
+          }
+        },
+        "status": {
+          "const": "active"
+        }
+      }
+    }
+  }
+}
