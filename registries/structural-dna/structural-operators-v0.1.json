@@ -1,0 +1,310 @@
+{
+  "registry_id": "sdna-operator-registry",
+  "registry_version": "0.1.0",
+  "specification_ref": "specs/structural-dna/structural-transformation-vocabulary-v0.1.md",
+  "status": "draft",
+  "operators": {
+    "OP-001": {
+      "operator_id": "OP-001",
+      "name": "detect_limit",
+      "definition": "対象構造の制約、矛盾、限界または過負荷を明示的に識別する操作。",
+      "preconditions": ["分析対象の構造が特定されている。", "限界や制約を指摘する根拠がある。"],
+      "expected_transformation": {
+        "source_pattern": "constraint-not-explicit",
+        "target_pattern": "constraint-identified",
+        "description": "暗黙の制約を、検討可能な制約として明示する。"
+      },
+      "example": {
+        "question": "中央集権的なAIネットワークは単一障害点に弱いのではないか？",
+        "explanation": "中央集権構造の障害耐性に関する限界を明示している。"
+      },
+      "non_example": {
+        "question": "中央集権的なAIネットワークとは何か？",
+        "explanation": "定義を質問しているだけで、限界の検出は示されていない。"
+      },
+      "cautions": ["限界の指摘が事実であることまで保証しない。", "問題を述べる語句の存在だけで演算子を確定しない。"],
+      "relationships": [
+        {"target_operator_id": "OP-002", "relation": "may_precede", "description": "集中の限界を検出した後に分散化を検討できる。"},
+        {"target_operator_id": "OP-009", "relation": "may_precede", "description": "複雑性の限界を検出した後に単純化を検討できる。"}
+      ],
+      "status": "active"
+    },
+    "OP-002": {
+      "operator_id": "OP-002",
+      "name": "distribute",
+      "definition": "集中した権限、機能、資源または処理を複数の構成要素に分配する操作。",
+      "preconditions": ["集中している対象が特定されている。", "分配先または分配方針が想定されている。"],
+      "expected_transformation": {
+        "source_pattern": "centralized-control",
+        "target_pattern": "distributed-autonomy",
+        "description": "集中した役割や権限を複数の自律的な構成要素へ分配する。"
+      },
+      "example": {
+        "question": "単一のAI管理者の判断を複数の専門AIへ分担できないか？",
+        "explanation": "判断機能の集中から役割分担への構造変換を提案している。"
+      },
+      "non_example": {
+        "question": "同じAI管理者を10台のサーバーで動かすには？",
+        "explanation": "物理的な複製だけでは判断権限の分散が示されていない。"
+      },
+      "cautions": ["物理的な複製と論理的な権限分散を区別する。", "分散化だけで安全性や自律性が保証されるわけではない。"],
+      "relationships": [
+        {"target_operator_id": "OP-003", "relation": "contrasts_with", "description": "分散と集中は方向的に対比されるが、必ずしも互いの逆演算ではない。"},
+        {"target_operator_id": "OP-004", "relation": "may_precede", "description": "分散した構成要素を後から接続する場合がある。"},
+        {"target_operator_id": "OP-007", "relation": "complements", "description": "分散の度合いを状況に応じて調整できる。"}
+      ],
+      "status": "active"
+    },
+    "OP-003": {
+      "operator_id": "OP-003",
+      "name": "centralize",
+      "definition": "分散した権限、機能、情報または処理を一つもしくは少数の中心に集約する操作。",
+      "preconditions": ["複数の構成要素が存在する。", "集約対象と中心となる機能が特定されている。"],
+      "expected_transformation": {
+        "source_pattern": "distributed-functions",
+        "target_pattern": "centralized-coordination",
+        "description": "分散した機能や判断を指定された中心へ集約する。"
+      },
+      "example": {
+        "question": "緊急時だけ分散したAI群の停止判断を中央安全管理層へ集約できないか？",
+        "explanation": "指定条件下で判断権限を中心へ移す提案である。"
+      },
+      "non_example": {
+        "question": "複数のAIが観測データを共有できないか？",
+        "explanation": "データ共有のみでは権限や機能の集中は示されない。"
+      },
+      "cautions": ["集中化を常に安全・危険のどちらかと評価しない。", "集中する権限の範囲と条件を区別する。"],
+      "relationships": [
+        {"target_operator_id": "OP-002", "relation": "contrasts_with", "description": "集中と分散は方向的に対比される。"},
+        {"target_operator_id": "OP-007", "relation": "complements", "description": "緊急時と平常時で集中度を調整できる。"}
+      ],
+      "status": "active"
+    },
+    "OP-004": {
+      "operator_id": "OP-004",
+      "name": "connect",
+      "definition": "独立または分離された構成要素の間に関係、参照または通信経路を形成する操作。",
+      "preconditions": ["少なくとも二つの接続対象が識別されている。", "形成する関係または経路が説明できる。"],
+      "expected_transformation": {
+        "source_pattern": "isolated-components",
+        "target_pattern": "connected-components",
+        "description": "構成要素間に明示的な接続関係を設ける。"
+      },
+      "example": {
+        "question": "独立したAIエージェントの監査記録を共通の来歴参照で接続できないか？",
+        "explanation": "別々の記録を相互参照可能にする関係の形成を提案している。"
+      },
+      "non_example": {
+        "question": "二つのAIが似た回答を生成するのか？",
+        "explanation": "回答の類似だけでは構成要素間の接続を示さない。"
+      },
+      "cautions": ["接続は権限共有や相互信頼を意味しない。", "参照関係と実行可能な通信経路を区別する。"],
+      "relationships": [
+        {"target_operator_id": "OP-005", "relation": "contrasts_with", "description": "接続と分離は方向的に対比される。"},
+        {"target_operator_id": "OP-002", "relation": "may_follow", "description": "分散化後に連携経路を形成する場合がある。"},
+        {"target_operator_id": "OP-010", "relation": "overlaps_with", "description": "接続は関係を形成し、結合は複合構造を形成するため一部で重なる。"}
+      ],
+      "status": "active"
+    },
+    "OP-005": {
+      "operator_id": "OP-005",
+      "name": "separate",
+      "definition": "結合した機能、権限、責任または情報を、区別可能な部分に分離する操作。",
+      "preconditions": ["分離する前の結合構造がある。", "分離対象と境界が特定されている。"],
+      "expected_transformation": {
+        "source_pattern": "coupled-functions",
+        "target_pattern": "separated-functions",
+        "description": "混在した責任や機能に明示的な境界を設ける。"
+      },
+      "example": {
+        "question": "AIの推論能力と外部システムを操作する権限を分離できないか？",
+        "explanation": "推論と実行認可の責任境界を分ける提案である。"
+      },
+      "non_example": {
+        "question": "異なるAIモデルの性能を比較するには？",
+        "explanation": "比較対象が別々であることは結合構造の分離を意味しない。"
+      },
+      "cautions": ["分離後も必要な連携が残る場合がある。", "機能分離と物理的な隔離を混同しない。"],
+      "relationships": [
+        {"target_operator_id": "OP-004", "relation": "contrasts_with", "description": "関係を形成する操作と境界を設ける操作は対比される。"},
+        {"target_operator_id": "OP-012", "relation": "complements", "description": "重要な不変条件を守るために責任を分離できる。"}
+      ],
+      "status": "active"
+    },
+    "OP-006": {
+      "operator_id": "OP-006",
+      "name": "circulate",
+      "definition": "情報、資源、価値または制御信号の流れに帰還・再接続・反復経路を設ける操作。",
+      "preconditions": ["流れる対象と経路が想定されている。", "帰還または再循環の関係が説明できる。"],
+      "expected_transformation": {
+        "source_pattern": "linear-flow",
+        "target_pattern": "feedback-or-circulation-flow",
+        "description": "一方向の流れを帰還または循環を含む関係へ変換する。"
+      },
+      "example": {
+        "question": "AIが得た価値の一部を貢献した人間へ還流させる仕組みを作れないか？",
+        "explanation": "価値の流れに貢献者への還流経路を加える提案である。"
+      },
+      "non_example": {
+        "question": "AIから人間へ報酬を一度支払うには？",
+        "explanation": "単発の一方向送金では循環的な関係が示されていない。"
+      },
+      "cautions": ["循環構造を無限ループの許可と解釈しない。", "循環の提案と実際の還流成立を区別する。"],
+      "relationships": [
+        {"target_operator_id": "OP-004", "relation": "complements", "description": "循環のために帰還経路を接続する場合がある。"},
+        {"target_operator_id": "OP-007", "relation": "complements", "description": "循環量や応答を条件に応じて調整できる。"}
+      ],
+      "status": "active"
+    },
+    "OP-007": {
+      "operator_id": "OP-007",
+      "name": "regulate",
+      "definition": "条件や観測結果に応じて状態、負荷、流量または振る舞いを調整する操作。",
+      "preconditions": ["調整対象の状態が特定されている。", "調整条件または判断基準が示されている。"],
+      "expected_transformation": {
+        "source_pattern": "unregulated-operation",
+        "target_pattern": "condition-dependent-operation",
+        "description": "観測や条件に応じて操作量や状態を変更できる関係を設ける。"
+      },
+      "example": {
+        "question": "AIネットワークの負荷に応じて集中と分散の度合いを調整できないか？",
+        "explanation": "状態に応じた制御方針の変更を提案している。"
+      },
+      "non_example": {
+        "question": "AIの処理速度を常に二倍にできないか？",
+        "explanation": "性能向上だけで条件依存の調整は示されない。"
+      },
+      "cautions": ["調整機能の存在は安全性や安定性を保証しない。", "調整条件を明示せずに演算子を割り当てない。"],
+      "relationships": [
+        {"target_operator_id": "OP-011", "relation": "complements", "description": "調整は安定条件を維持するための手段になり得る。"},
+        {"target_operator_id": "OP-002", "relation": "complements", "description": "分散の程度を条件に応じて調整できる。"},
+        {"target_operator_id": "OP-003", "relation": "complements", "description": "集中の程度を条件に応じて調整できる。"}
+      ],
+      "status": "active"
+    },
+    "OP-008": {
+      "operator_id": "OP-008",
+      "name": "reverse",
+      "definition": "構造内の方向、順序または作用関係を、明示された別方向へ反転させる操作。",
+      "preconditions": ["反転前の方向または関係が特定されている。", "何をどの方向に反転するかが説明できる。"],
+      "expected_transformation": {
+        "source_pattern": "direction-A",
+        "target_pattern": "opposite-direction-B",
+        "description": "指定された作用または関係の方向を逆転する。"
+      },
+      "example": {
+        "question": "外部圧力を防ぐだけでなく、圧力から防御の改善情報を得る方向へ切り替えられないか？",
+        "explanation": "外圧を排除対象として扱う関係から情報源として利用する関係への方向転換を提案する。"
+      },
+      "non_example": {
+        "question": "AIの処理速度を少し落とすには？",
+        "explanation": "数量の減少のみで構造的な方向反転を示さない。"
+      },
+      "cautions": ["反転を完全な原状回復と同一視しない。", "作用の転用と厳密な方向反転の境界は追加審査を要する場合がある。"],
+      "relationships": [
+        {"target_operator_id": "OP-007", "relation": "complements", "description": "条件に応じた方向切り替えを調整できる。"}
+      ],
+      "status": "active"
+    },
+    "OP-009": {
+      "operator_id": "OP-009",
+      "name": "simplify",
+      "definition": "不要な構成要素、関係または処理段階を削除・統合・抽象化して複雑性を減らす操作。",
+      "preconditions": ["簡略化する構造が特定されている。", "除去または統合する対象が示されている。"],
+      "expected_transformation": {
+        "source_pattern": "complex-structure",
+        "target_pattern": "reduced-complexity-structure",
+        "description": "重要条件を考慮しながら構造上の要素や関係を減らす。"
+      },
+      "example": {
+        "question": "複数のAI認可処理を共通の権限境界へ整理できないか？",
+        "explanation": "重複した認可構造の統合・単純化を提案している。"
+      },
+      "non_example": {
+        "question": "この説明文を短く書き直せるか？",
+        "explanation": "表現の短縮のみでは対象システムの構造変換を示さない。"
+      },
+      "cautions": ["単純化が機能喪失やリスク増大を招く場合がある。", "複雑性の尺度が明示されない場合は慎重に解釈する。"],
+      "relationships": [
+        {"target_operator_id": "OP-010", "relation": "overlaps_with", "description": "重複要素を統合することで単純化する場合がある。"},
+        {"target_operator_id": "OP-012", "relation": "complements", "description": "重要な条件を維持しながら構造を簡略化できる。"}
+      ],
+      "status": "active"
+    },
+    "OP-010": {
+      "operator_id": "OP-010",
+      "name": "combine",
+      "definition": "複数の構造、機能または規則を組み合わせて新しい複合構造を形成する操作。",
+      "preconditions": ["組み合わせる複数の構造が特定されている。", "統合によって形成する関係が説明できる。"],
+      "expected_transformation": {
+        "source_pattern": "separate-structures",
+        "target_pattern": "composite-structure",
+        "description": "複数の構造の要素または規則を組み合わせる。"
+      },
+      "example": {
+        "question": "問い活の貢献記録とAI決済記録を共通の来歴構造へ統合できないか？",
+        "explanation": "二つの記録体系を一つの複合的な来歴設計へ組み合わせる提案である。"
+      },
+      "non_example": {
+        "question": "二つのプロトコルの特徴を比較したい。",
+        "explanation": "比較のみでは複合構造を形成する操作ではない。"
+      },
+      "cautions": ["統合後も元の意味や権限境界を維持する必要がある。", "単なる接続と新しい複合構造の形成を区別する。"],
+      "relationships": [
+        {"target_operator_id": "OP-004", "relation": "overlaps_with", "description": "接続のみの場合と複合構造を形成する場合を区別する。"},
+        {"target_operator_id": "OP-009", "relation": "overlaps_with", "description": "統合によって要素数が減る場合もある。"}
+      ],
+      "status": "active"
+    },
+    "OP-011": {
+      "operator_id": "OP-011",
+      "name": "stabilize",
+      "definition": "変動や偏りを許容範囲内に抑え、指定された安定条件を維持しようとする操作。",
+      "preconditions": ["変動する状態が存在する。", "安定条件または許容範囲が想定されている。"],
+      "expected_transformation": {
+        "source_pattern": "unstable-operation",
+        "target_pattern": "bounded-operation",
+        "description": "状態変動を定義された範囲内に収める。"
+      },
+      "example": {
+        "question": "AI群の負荷が急増したとき出力能力を制限して安定動作を維持できないか？",
+        "explanation": "急変時に動作状態を許容範囲へ抑える提案である。"
+      },
+      "non_example": {
+        "question": "AIの出力を常に固定値にすればよいのか？",
+        "explanation": "固定値への設定だけでは指定された安定条件との関係が示されない。"
+      },
+      "cautions": ["安定化と固定化を区別する。", "安定化を提案しただけでは安全性を証明できない。"],
+      "relationships": [
+        {"target_operator_id": "OP-007", "relation": "complements", "description": "状態を観測して調整することが安定化に寄与し得る。"},
+        {"target_operator_id": "OP-012", "relation": "overlaps_with", "description": "維持対象が安定条件の場合は意味が部分的に重なる。"}
+      ],
+      "status": "active"
+    },
+    "OP-012": {
+      "operator_id": "OP-012",
+      "name": "preserve",
+      "definition": "環境や周辺構造が変化しても、指定された重要要素または不変条件を維持する操作。",
+      "preconditions": ["維持する要素または不変条件が特定されている。", "対象へ影響し得る変化または外部条件が想定されている。"],
+      "expected_transformation": {
+        "source_pattern": "changing-environment-with-invariant",
+        "target_pattern": "changed-environment-with-preserved-invariant",
+        "description": "周辺の変化を許容しつつ、指定された条件を保持する。"
+      },
+      "example": {
+        "question": "AIモデルを更新しても人間の問いの来歴と同意記録を保持できないか？",
+        "explanation": "モデル変更下でも来歴と同意という不変条件を守る提案である。"
+      },
+      "non_example": {
+        "question": "既存システムを何も変更したくない。",
+        "explanation": "変更下で守る対象や条件が示されず、単なる現状維持の希望である。"
+      },
+      "cautions": ["保持する対象と変更可能な対象を明示する。", "不変条件の維持と履歴データの無期限保存を混同しない。"],
+      "relationships": [
+        {"target_operator_id": "OP-005", "relation": "complements", "description": "不変条件を守るために権限や責任を分離する場合がある。"},
+        {"target_operator_id": "OP-011", "relation": "overlaps_with", "description": "安定条件の維持では一部の意味が重なる。"}
+      ],
+      "status": "active"
+    }
+  }
+}
